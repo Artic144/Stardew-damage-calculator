@@ -16,6 +16,9 @@ Important to note, the decompiled code is *not* of the newest, `1.6.x` updates o
 - [Weapon Base Stats / Tooltips](#weapon-base-stats--tooltips)
 - [Forges](#forges)
 - [Dagger Crit. Chance Buff](#dagger-crit-chance-buff)
+- [Rings](#rings)
+- [Innate Enchantments](#innate-enchantments)
+- [Scout Crit. Chance Boost](#scout-crit-chance-boost)
 
 ## User Guide
 
@@ -34,7 +37,7 @@ A good example is the Iridium Needle dagger, which has an incredible +200 Crit. 
 
 In general, the game handles all weapon stats, boosts, etc. behind the scenes and then creates the tooltips afterwards. Speed and Critical Chance (both discussed below) also have weird tooltip calculations that can be confusing, but stats like Defense and Knockback should always be accurate to the tooltip (see `StardewValley::Tools::MeleeWeapon.drawTooltip` for specifics).
 
-So in summary, weapons have their base stats stored in `Weapons.xnb`, which the game then loads and changes based on a weapon's buffs. The tooltips you see on a weapon are *not* directly affecting it, but are a reflection of the buffs it already has.
+So in summary, weapons have their base stats stored in `Weapons.xnb`, which the game then loads to calculate things like forged mineral buffs. The tooltips you see on a weapon are *not* directly affecting it, but are a reflection of the stats it already has.
 
 #### Forges
 
@@ -54,7 +57,7 @@ if (weapon != null)
 }
 ```
 
-The last 2 lines are the most important part here: because the damage a weapon does has to be an integer, a lot of rounding happens in the calculations. This means that even though the Ruby forge *should* increase a weapon's base damage by 10%, sometimes it's a little less because of this rounding. 
+The last 2 lines are the important part here: because the damage a weapon does has to be an integer, a lot of rounding happens in the calculations. This means that even though the Ruby forge *should* increase a weapon's base damage by 10%, sometimes it's a little less because of this rounding. 
 
 Whenever a number is cast to an integer using `(int)` it drops all the decimals and does no rounding, so even `(int)3.999999 = 3`. The `Math.Max` function usually doesn't affect the result of ruby forges because by the time you've unlocked the forge, you have a pretty strong weapon where 10% of it's minimum damage is at least 1 anyway.  If you forge something like your starter sword with rubies however, this `Math.Max` will ensure that you at least get 1 bonus damage added per ruby. 
 ___
@@ -107,7 +110,7 @@ if (weapon != null)
 }
 ```
 
-Emeralds increase their weapon's speed by 5 per emerald. The weapon's speed value on the tooltip (from now on "tooltip speed") is the "true" speed value divided by 2 and typecast into an integer. The behavior described on the wiki where the first emerald adds 2 tooltip speed, the next 3, and the third 2 is explained by this tooltip speed calculation: 
+Emeralds increase their weapon's speed by 5 per emerald. The weapon's speed value on the tooltip (from now on "tooltip speed") is the "true" speed value divided by 2 and typecast into an integer. The behavior described on [the wiki](https://stardewvalleywiki.com/Forge#Weapon_forging) where the first emerald adds +2 tooltip speed, the second +3, and the third +2 is explained by this tooltip speed calculation: 
 
 `1 emerald = +5 true speed = +int(2.5) tooltip speed = +2 tooltip speed`, 
 
@@ -115,7 +118,7 @@ Emeralds increase their weapon's speed by 5 per emerald. The weapon's speed valu
 
 `3 emeralds = +15 true speed = +int(7.5) tooltip speed = +7 tooltip speed`.
 
-This assumes that our base weapon has 0 base speed, which is often not the case, especially for clubs which have an implicit -8 true speed modifier. Only 3 weapons to my knowledge have an odd base speed which would change the bonuses provided by the emerald forges, these being the Galaxy Dagger, Infinity Dagger, and Dwarf Dagger all at 3. This changes the bonus speed per emerald to: 
+This assumes that our base weapon has an even base speed, which is rarely not the case. Only 3 weapons to my knowledge have an odd base speed which would change the bonuses provided by the emerald forges, these being the Galaxy Dagger, Infinity Dagger, and Dwarf Dagger all at 3 base speed. This changes the bonus speed per emerald to:
 
 `0 emeralds = +3 true speed = +1 tooltip speed`, 
 
@@ -126,6 +129,33 @@ This assumes that our base weapon has 0 base speed, which is often not the case,
 `3 emeralds = +18 true speed = +9 tooltip speed`.
 
 These daggers already have a total attack time so low that it's impractical and probably wasteful to apply emeralds to them, but a fun thought experiment nonetheless. For more information on weapon speed see `StardewValley::Tools::MeleeWeapon` and [the wiki](https://stardewvalleywiki.com/Speed). For the purposes of this damage calculator I do not consider speed as I am currently interested in the raw damage per hit of a weapon, not the damage per second output. 
+___
+- Amethyst - `StardewValley::AmethystEnchantment`
+```c#
+base._ApplyTo(item);
+MeleeWeapon weapon = item as MeleeWeapon;
+if (weapon != null)
+{
+  weapon.knockback.Value += GetLevel();
+}
+```
+Each amethyst adds 1 to the level of a weapon's knockback per forge. This translates to +10 weight on a weapon's tooltip. See [the wiki](https://stardewvalleywiki.com/Weight) for more info.
+___
+That was a lot, so to recap:
+
+__Ruby__ : Increase a weapon's base damage by +10% rounded down or +1, whichever is higher (per ruby forge).
+
+__Jade__ : Increases a weapon's Crit. Multiplier by +0.1, or +5 Crit. Power (per jade forge).
+
+__Aquamarine__ : Increases a weapon's base Crit. Chance by +4.6% (per aquamarine forge).
+
+__Topaz__ : Increases the defense of the player by +1 (per topaz forge) while holding the weapon.
+
+__Emerald__ : Increases the "true speed" of the weapon by +5 (per emerald forge).
+
+__Amethyst__ : Increases the knockback of the weapon by +1 (per amethyst forge).
+
+These changes are the first thing that happens when calculating damage done by a weapon. Forges can be thought of as modifying the base stats of the weapon they're applied to.
 
 ## Dagger Crit. Chance Buff
 
@@ -140,12 +170,64 @@ if ((int)type == 1)
 }
 ```
 
-For example, a dagger with `2%` base Crit. Chance has `2.8%` after the boost. This boost in Crit. Chance always occurs *after* forges are applied to a weapon, meaning it synergizes very well with the Aquamarine forges. If a dagger with base `2%` Crit. Chance has 3 Aquamarine forges it will have `18.256%` Crit. Chance after the boost.
+For example, a dagger with 2% base Crit. Chance has 2.8% after the boost. This boost in Crit. Chance always occurs *after* forges are applied to a weapon, meaning it synergizes very well with the Aquamarine forges. If a dagger with base 2% Crit. Chance has 3 Aquamarine forges it will have 18.256% Crit. Chance after the boost. This boost is always given after forges are applied but before other buffs like rings and professions.
 
+## Rings
 
+Only a few of the game's rings will affect a weapon's damage, some of the most important being the Iridium Ring / Ruby Ring, Aquamarine Ring, Jade Ring, and Lucky Ring. With the exception of the Lucky Ring, all other mentioned rings provide a 10% boost to their respective stat. Rings stack addatively with each other, meaning wearing 2 Ruby Rings provide a 20% boost to attack.
 
+So far we've spent practically all our time in the `StardewValley::Tools::MeleeWeapon` file, and this will be the last section where this is true. In the function `StardewValley::Tools::MeleeWeapon.DoDamage`, the function `StardewValley::GameLoction::damageMonster` is called, and is passed these parameters: 
+```c#
+location.damageMonster(areaOfEffect,
+                      (int)((float)(int)minDamage * (1f + who.attackIncreaseModifier)),
+                      (int)((float)(int)maxDamage * (1f + who.attackIncreaseModifier)),
+                      isBomb: false,
+                      (float)knockback * (1f + who.knockbackModifier),
+                      (int)((float)(int)addedPrecision * (1f + who.weaponPrecisionModifier)),
+                      effectiveCritChance2 * (1f + who.critChanceModifier),
+                      (float)critMultiplier * (1f + who.critPowerModifier),
+                      (int)type != 1 || !isOnSpecial, lastUser
+                      )
+```
+The general idea is that each of the stats we care about like Min/Max Damage and Crit. Chance / Multplier are being increased by their respective `"Modifier"` variable. These modifiers refer to the player's equipped ring bonuses. Each specific ring's effects can be seen in the `StardewValley::Objects::Ring` file, but I will summarize here: 
 
+- For each Ruby / Iridium Ring: `attackIncreaseModifier += 0.1`
+- For each Aquamarine Ring: `critChanceModifier += 0.1`
+- For each Jade Ring: `critPowerModifier += 0.1`
 
+As an example, if you have two combined Iridium + Ruby Rings equipped, your total  `attackIncreaseModifier = 0.4`. This means that `newMinDamage = (int)minDamage * (1 + 0.4)`, So your rings are giving you 40% more damage. The actual damage you do might be a little lower because of the integer typecasting at the very end. With respect to Crit. Chance and Crit. Multipliers, these values are stored as floats and so we don't have to worry about any rounding happening with those two. As for the rest of the variables, They do not directly affect the damage calculations so we can ignore them.
+
+## Innate Enchantments
+
+Because I do not have access to a decompiled version of Stardew Valley's `1.6.x` code, I cannot verify the exact way that Innate Enchantments affect damage, but by using the wiki's examples [(Crit. Chance)](https://stardewvalleywiki.com/Combat#Critical_hit_chance), 
+ [(Crit. Power)](https://stardewvalleywiki.com/Crit._Power) and CytheNulle's video I believe this is the accurate way to include these Innate Enchantments into the damage calculation. 
+
+There are four Innate Enchantments that affect damage done and they are all mutually exclusive: Slime Slayer, Crit. Power (1-3), Crit. Chance (1-3), and Attack (1-5). Attack does not affect damage until a later step, and I am unsure as to when Slime Slayer affects damage done. My best guess would be at the very end of the calculations alongside enchants like Crusader or Bug Killer. That leaves the Crit. Enchantments that can be factored in at this step. 
+
+Crit. Chance factors in addatively with the ring bonuses above, and can be described with the formula: 
+
+`newCritChance = critChance * (1 + critChanceModifier + 0.02*critChanceEnchantLevel)`.
+
+Basically, every Aquamarine Ring equipped adds +10% to the multiplier and every level of the Crit. Chance Enchant adds another +2%.
+
+Crit. Power works similarly:
+
+`newCritMultiplier = critMultiplier * (1 + critPowerModifier + 0.5*critPowerEnchantLevel)`.
+
+Same as last time, Every Jade Ring adds +10% to the Crit. Multiplier multiplier and each level of the Crit. Power enchant adds +50%.
+
+## Scout Crit. Chance Boost
+
+From now on we're working inside the `StardewValley::GameLoction::damageMonster` function, and the first order of business is to check if the player has the Scout profession:
+
+```c#
+if (who.professions.Contains(25))
+{
+  critChance += critChance * 0.5f;
+}
+```
+
+If they do, multiply their Crit. Chance by 1.5. Nice and easy!
 
 
 
