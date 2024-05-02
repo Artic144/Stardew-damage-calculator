@@ -101,7 +101,7 @@ This assumes that our base weapon has 0 base speed, which is often not the case,
 
 `1 emerald = +3 final speed, 2 emeralds = +5 final speed, 3 emeralds = +8 final speed`.
 
-the
+These daggers already have a total attack time so low that it's impractical and probably wasteful to apply emeralds to them, but a fun thought experiment nonetheless. For more information on weapon speed see `StardewValley::Tools::MeleeWeapon` and [the wiki](https://stardewvalleywiki.com/Speed). For the purposes of this damage calculator I do not consider speed as I am currently interested in the raw damage per hit of a weapon, not the damage per second output. 
 
 
 
