@@ -1,24 +1,33 @@
 # Stardew Damage Calculator
 Welcome, I've written up a tool to calculate hit damage and optimize builds in Stardew Valley. If you'd like to jump straight into the data, check out any of the links below!
 - [Google Drive Folder](link) // A Google Drive folder of all damage data for many popular weapons.
-- [Custom Stats Calculator](link) // A Google Colab with the calculatory so that you can add/change/customize anything you want (tutorial below).
+- [Custom Stats Calculator](link) // A Google Colab with the calculator so that you can add/change/customize anything you want (tutorial below).
 
 ## Overview / Description
-I've taken a look through the [decompiled Stardew Valley code](https://github.com/veywrn/StardewValley/tree/master) and recreated the damage calculations so that I could figure out what combination of weapon forges, rings, professions, etc. lets you hit the biggest numbers. 
+While researching for this project I could only find a few sources for how damage was actually calculated, mostly [Penguinpanda's Video](https://www.youtube.com/watch?v=_CGaLn6Etvc), [CytheNulle's Video](https://www.youtube.com/watch?v=upUQwXrW_kI) and [the community wiki](https://stardewvalleywiki.com).
 
+I've taken a look through the [decompiled Stardew Valley code](https://github.com/veywrn/StardewValley/tree/master) and recreated the damage calculations so that I could figure out what combination of weapon forges, rings, professions, etc. lets you hit the biggest numbers. In this calculator I am focused on the damage that a weapon does per hit, which means I do not take weapon speed into account or try to calculate damage per second. Other player stats that I ignore are Defense and Knockback since they do not directly affect the hit damage of weapons. Defense of enemies is assumed to be 0, but I hope to update this assumption eventually.
+
+Important to note, the decompiled code is *not* of the newest, `1.6.x` updates of the game but instead for `1.5.4`. To my knowledge, none of the math or weapon stats are any different than they were in `1.5` so this data should still be relevant now. The only addition in `1.6` that is relevant are innate weapon enchants, for which I am assuming the wiki and CytheNulle's video correctly describe how they are factored into the damage formula.
+
+## User Guide
 
 ## Stardew Damage Algorithm Breakdown
-While researching for this project I could only find a few sources for how damage was actually calculated, mostly [[Penguinpanda's Video]](https://www.youtube.com/watch?v=_CGaLn6Etvc), [[CytheNulle's Video]](https://www.youtube.com/watch?v=upUQwXrW_kI) and [the community wiki](https://stardewvalleywiki.com), So I want to compile everything about how the game calculates damage in one place here. I'll be using the wiki's conventions for talking about methods / functions in game code, E.g. `StardewValley::Tools::MeleeWeapon.DoDamage` which is effectively the filepath so that you can find the class / functions I reference if you like.
+I want to compile everything about how the game calculates damage in one place here. I'll be using the wiki's conventions for talking about methods / functions in game code, E.g. `StardewValley::Tools::MeleeWeapon.DoDamage` which is effectively the filepath so that you can find the class / functions I reference if you like.
 
-#### Weapon Base Stats
+#### Weapon Base Stats / Tooltips
 
-The data for weapons and their base stats like level, min and max damage, crit rate / multiplier, etc. is stored in a file called `Weapons.xnb` [[wiki]](https://stardewvalleywiki.com/Modding:Items#Weapons). This data is loaded by `‎StardewValley::Tools::MeleeWeapon.RecalculateAppliedForges`, which will then apply bonuses to these base stats. 
+The data for weapons and their base stats like level, min and max damage, crit rate / multiplier, etc. is stored in a file called `Weapons.xnb` [[wiki]](https://stardewvalleywiki.com/Modding:Items#Weapons). This data is loaded by functions like `‎StardewValley::Tools::MeleeWeapon.RecalculateAppliedForges`, which will then apply bonuses to these base stats. 
 
-Something that tripped me up when learning about this stuff for the first time was the fact that "Critical Hit Damage" is kind of fake. Each weapon has a value that I'll call "Critical Multiplier", and most weapons have this value set to 3. If this value is larger than 3, the game will give the weapon the "Crit Power" stat, with a bonus based on the formula:
+Something else to note is that weapon tooltips are not always an accurate or understandable reflection of a weapon's actual stats. For example: "Critical Hit Damage" is kind of fake. Each weapon has a value that I'll call "Critical Multiplier", and most weapons have this value set to 3. If this value is larger than 3, the game will give the weapon the "Crit Power" stat, with a bonus based on the formula:
 
 `Crit. Mult. = 3 + (Crit. Power / 50)`  |  `Crit. Power = (Crit. Mult. - 3) * 50`
 
-A good example is the Iridium Needle dagger, which has an incredible +200 Crit. Power. Using this we can plug it into the formula for Crit. Mult. and see its base Crit. Multiplier is 7. The game handles most calculations regarding the extra damage dealt by crits with the Crit Multiplier stat, so it's useful to understand how it works.
+A good example is the Iridium Needle dagger, which has an incredible +200 Crit. Power. In the game data the Iridium Needle has a base Crit. Multiplier of 7, which when we plug into the formula we see gets us exactly that +200 Crit. Power on the tooltip. The game handles most calculations regarding the extra damage dealt by crits with the Crit Multiplier stat, so it's useful to understand how it works.
+
+In general, the game handles all weapon stats, boosts, etc. behind the scenes and then creates the tooltips afterwards. Speed and Critical Chance (both discussed below) also have weird tooltip calculations that can be confusing, but stats like Defense and Knockback should always be accurate to the tooltip (see `StardewValley::Tools::MeleeWeapon.drawTooltip` for specifics).
+
+So in summary, weapons have their base stats stored in `Weapons.xnb`, which the game then loads and changes based on a weapon's buffs. The tooltips you see on a weapon are *not* directly affecting it, but are a reflection of the buffs it already has.
 
 #### Forges
 
@@ -64,7 +73,9 @@ if (weapon != null)
 }
 ```
 
-Aquamarines increase their weapon's *base* Crit. Chance addatively by 4.6%. Most weapons have a base crit chance of 2%, so even one forge is a substantial increase to a weapon's Crit. Chance.
+Aquamarines increase their weapon's *base* Crit. Chance addatively by 4.6%. Most weapons have a base crit chance of 2%, so even one forge is a substantial increase to a weapon's Crit. Chance. 
+
+The tooltip for Crit. Chance on a weapon is *roughly* +1 tooltip Crit. Chance for each 1% base Crit. Chance above 2%. This is a rough estimation because of the game rounding numbers and daggers having a slightly buffed Crit. Chance in the game code (see `StardewValley::Tools::MeleeWeapon.drawTooltip`).
 
 ___
 - Topaz - `StardewValley::TopazEnchantment`
@@ -89,19 +100,38 @@ if (weapon != null)
 }
 ```
 
-Emeralds increase their weapon's speed by 5 per emerald. The weapon's speed value on the tooltip (from now on "final speed") is the "true" speed value divided by 2 and typecast into an integer. The behavior described on the wiki where the first emerald adds 2 final speed, the next 3, and the third 2 is explained by this final speed calculation: 
+Emeralds increase their weapon's speed by 5 per emerald. The weapon's speed value on the tooltip (from now on "tooltip speed") is the "true" speed value divided by 2 and typecast into an integer. The behavior described on the wiki where the first emerald adds 2 tooltip speed, the next 3, and the third 2 is explained by this tooltip speed calculation: 
 
-`1 emerald = +5 true speed = +int(2.5) final speed = +2 final speed`, 
+`1 emerald = +5 true speed = +int(2.5) tooltip speed = +2 tooltip speed`, 
 
-`2 emeralds = +10 true speed = +int(5) final speed = +5 final speed`,
+`2 emeralds = +10 true speed = +int(5) tooltip speed = +5 tooltip speed`,
 
-`3 emeralds = +15 true speed = +int(7.5) final speed = +7 final speed`.
+`3 emeralds = +15 true speed = +int(7.5) tooltip speed = +7 tooltip speed`.
 
-This assumes that our base weapon has 0 base speed, which is often not the case, especially for clubs which have an implicit -8 true speed modifier. Only 3 weapons to my knowledge have an odd base speed being the Galaxy Dagger, Infinity Dagger, and Dwarf Dagger all at 3. This changes the bonus speed per emerald to: 
+This assumes that our base weapon has 0 base speed, which is often not the case, especially for clubs which have an implicit -8 true speed modifier. Only 3 weapons to my knowledge have an odd base speed which would change the bonuses provided by the emerald forges, these being the Galaxy Dagger, Infinity Dagger, and Dwarf Dagger all at 3. This changes the bonus speed per emerald to: 
 
-`1 emerald = +3 final speed, 2 emeralds = +5 final speed, 3 emeralds = +8 final speed`.
+`0 emeralds = +3 true speed = +1 tooltip speed`, 
+
+`1 emerald = +8 true speed = +4 tooltip speed`, 
+
+`2 emeralds = +13 true speed = +6 tooltip speed`, 
+
+`3 emeralds = +18 true speed = +9 tooltip speed`.
 
 These daggers already have a total attack time so low that it's impractical and probably wasteful to apply emeralds to them, but a fun thought experiment nonetheless. For more information on weapon speed see `StardewValley::Tools::MeleeWeapon` and [the wiki](https://stardewvalleywiki.com/Speed). For the purposes of this damage calculator I do not consider speed as I am currently interested in the raw damage per hit of a weapon, not the damage per second output. 
+
+## Dagger Crit. Chance Buff
+
+All daggers are given a small boost in Crit. Chance that is given by this formula from `StardewValley::Tools::MeleeWeapon.DoDamage`:
+
+```c#
+float effectiveCritChance2 = critChance;
+if ((int)type == 1)
+{
+  effectiveCritChance2 += 0.005f;
+  effectiveCritChance2 *= 1.12f;
+}
+```
 
 
 
