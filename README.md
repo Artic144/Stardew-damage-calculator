@@ -10,6 +10,13 @@ I've taken a look through the [decompiled Stardew Valley code](https://github.co
 
 Important to note, the decompiled code is *not* of the newest, `1.6.x` updates of the game but instead for `1.5.4`. To my knowledge, none of the math or weapon stats are any different than they were in `1.5` so this data should still be relevant now. The only addition in `1.6` that is relevant are innate weapon enchants, for which I am assuming the wiki and CytheNulle's video correctly describe how they are factored into the damage formula.
 
+## Table of Contents
+#### [User Guide]()
+#### [Stardew Damage Algorithm Breakdown](#stardew-damage-algorithm-breakdown-1)
+- [Weapon Base Stats / Tooltips](#weapon-base-stats--tooltips)
+- [Forges](#forges)
+- [Dagger Crit. Chance Buff](#dagger-crit-chance-buff)
+
 ## User Guide
 
 ## Stardew Damage Algorithm Breakdown
@@ -133,6 +140,7 @@ if ((int)type == 1)
 }
 ```
 
+For example, a dagger with `2%` base Crit. Chance has `2.8%` after the boost. This boost in Crit. Chance always occurs *after* forges are applied to a weapon, meaning it synergizes very well with the Aquamarine forges. If a dagger with base `2%` Crit. Chance has 3 Aquamarine forges it will have `18.256%` Crit. Chance after the boost.
 
 
 
