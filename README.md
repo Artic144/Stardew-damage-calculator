@@ -24,8 +24,12 @@ Important to note, the decompiled code is *not* of the newest, `1.6.x` updates o
 - [Professions](#professions)
 - [Enchantments](#enchantments)
 - [Finished](#finished)
+#### [Methods](#methods)
 
 ## User Guide
+### Browsing Google Sheets
+
+### Using Google Colab
 
 ## Stardew Damage Algorithm Breakdown
 I want to compile everything about how the game calculates damage in one place here. I'll be using the wiki's conventions for talking about methods / functions in game code, E.g. `StardewValley::Tools::MeleeWeapon.DoDamage` which is effectively the filepath so that you can find the class / functions I reference if you like.
@@ -251,9 +255,6 @@ Next up, the game rolls a damage value between the Minimum and Maximum Damage, a
 
 This formula multiplicatively increases the player's Crit. Chance by 2.5% per point of luck. Daily luck does not factor into `LuckLevel`, and only increases such a Lucky Rings or Luck buffs from food will matter here. After the Critical Strike roll is done the `damageAmount5` is multiplied by `critMultiplier` if the Crit. roll succeeded, otherwise it stays the same if it failed. 
 
-___
-An important thing to mention is that in my calculator, I do not randomize a damage value here, and instead just find the average between Min and Max Damage. I then scale this average value the same way any random damage value would from here on out. This produces the same average damage that we should expect to see in game.
-___
 ## Attack Boosts
 ```c#
 damageAmount5 = Math.Max(1, damageAmount5 + ((who != null) ? (who.attack * 3) : 0));
@@ -321,17 +322,16 @@ damageAmount5 = monster.takeDamage(damageAmount5, (int)trajectory.X, (int)trajec
 ```
 It's the end! This is where the final `damageAmount5` will be dealt to the enemy. The enemy's defense will reduce the damage done by 1 per point (here's the code for that real quick: `int actualDamage = Math.Max(1, damage - (int)resilience);`), and that's the end of our story.
 
+# Methods
+
+In this section I hope to give a deeper dive into how I programmed the calculator for those interested. All calculator code is written in `Python`, and I make use of the `numpy` and `pandas` packages.
+
+# Discussion
 
 
 
 
-
-
-
-
-
-
-
+# Closing Thoughts
 
 
 
