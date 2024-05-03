@@ -19,6 +19,11 @@ Important to note, the decompiled code is *not* of the newest, `1.6.x` updates o
 - [Rings](#rings)
 - [Innate Enchantments](#innate-enchantments)
 - [Scout Crit. Chance Boost](#scout-crit-chance-boost)
+- [Damage and Crit. Rolls](#damage-and-crit-rolls)
+- [Attack Boosts](#attack-boosts)
+- [Professions](#professions)
+- [Enchantments](#enchantments)
+- [Finished](#finished)
 
 ## User Guide
 
@@ -228,6 +233,99 @@ if (who.professions.Contains(25))
 ```
 
 If they do, multiply their Crit. Chance by 1.5. Nice and easy!
+
+## Damage and Crit. Rolls
+
+```c#
+damageAmount5 = Game1.random.Next(minDamage, maxDamage + 1);
+if (who != null && Game1.random.NextDouble() < (double)(critChance + (float)who.LuckLevel * (critChance / 40f)))
+{
+  crit = true;
+  playSound("crit");
+}
+damageAmount5 = (crit ? ((int)((float)damageAmount5 * critMultiplier)) : damageAmount5);
+```
+Next up, the game rolls a damage value between the Minimum and Maximum Damage, and denotes it as `damageAmount5`. This will end up being the final value that we can use as the actual number you hit in game after a few more bits of code. After the damage is rolled, the game checks whether or not the hit was a Critical Strike. It factors the player's luck into the final Critical Strike Chance using this formula:
+
+`finalCritChance = critChance * (1 + LuckLevel/40)`.
+
+This formula multiplicatively increases the player's Crit. Chance by 2.5% per point of luck. Daily luck does not factor into `LuckLevel`, and only increases such a Lucky Rings or Luck buffs from food will matter here. After the Critical Strike roll is done the `damageAmount5` is multiplied by `critMultiplier` if the Crit. roll succeeded, otherwise it stays the same if it failed. 
+
+___
+An important thing to mention is that in my calculator, I do not randomize a damage value here, and instead just find the average between Min and Max Damage. I then scale this average value the same way any random damage value would from here on out. This produces the same average damage that we should expect to see in game.
+___
+## Attack Boosts
+```c#
+damageAmount5 = Math.Max(1, damageAmount5 + ((who != null) ? (who.attack * 3) : 0));
+```
+This sneaky line of code increases the damage of the player's attack by `3 * attack`. Things that can influence the player's attack include the Warrior Ring buff, other buffs from eating food, as well as the Attack Innate Enchantment.  The fact that this line of code comes right after the critical strike section can create some very strange damage outputs, well showcased in Penguinpanda's video.
+
+## Professions
+
+```c#
+if (who != null && who.professions.Contains(24))
+{
+  damageAmount5 = (int)Math.Ceiling((float)damageAmount5 * 1.1f);
+}
+if (who != null && who.professions.Contains(26))
+{
+  damageAmount5 = (int)Math.Ceiling((float)damageAmount5 * 1.15f);
+}
+if (who != null && crit && who.professions.Contains(29))
+{
+  damageAmount5 = (int)((float)damageAmount5 * 2f);
+}
+```
+Nearly there now, here the game is checking for the three damage increasing professions. The first `if` block checks for the `Fighter` profession and multiplies the player's damage by `1.1`. It also rounds the number up, meaning you will do at least one more damage per hit. 
+
+The next `if` block checks for the `Brute` profession and is very similar to the last check. This time it multiplies damage by `1.15`, rounding up again. If you have both `Fighter` and `Brute` selected you can expect to do about `1.265` times the damage you would do without them, and in practice even a little more because of the rounding up. 
+
+The final `if` block checks for the `Desperado` profession, and multiplies the damage by `2` if the current hit is a critical strike. 
+
+## Enchantments
+``` c#
+foreach (BaseEnchantment enchantment in who.enchantments)
+{
+  enchantment.OnCalculateDamage(monster, this, who, ref damageAmount5);
+}
+```
+
+The last thing to do is to apply weapon enchantments (not innate enchantments, save for maybe Slime Slayer) to `damageAmount5`, if applicable. The two weapon enchantments with this property are:
+
+- Crusader - `StardewValley::CrusaderEnchantment` - Multiplies damage by `1.5` against undead and void enemies.
+```c#
+protected override void _OnDealDamage(Monster monster, GameLocation location, Farmer who, ref int amount)
+{
+  if (monster is Ghost || monster is Skeleton || monster is Mummy || monster is ShadowBrute || monster is ShadowShaman || monster is ShadowGirl || monster is ShadowGuy || monster is Shooter)
+  {
+    amount = (int)((float)amount * 1.5f);
+  }
+}
+```
+
+- Bug Killer - `StardewValley::BugKillerEnchantment` - Multiplies damage by `2` against bug enemies.
+```c#
+protected override void _OnDealDamage(Monster monster, GameLocation location, Farmer who, ref int amount)
+{
+  if (monster is Grub || monster is Fly || monster is Bug || monster is Leaper || monster is LavaCrab || monster is RockCrab)
+  {
+    amount = (int)((float)amount * 2f);
+  }
+}
+```
+
+## Finished
+
+```#c
+damageAmount5 = monster.takeDamage(damageAmount5, (int)trajectory.X, (int)trajectory.Y, isBomb, (double)addedPrecision / 10.0, who);
+```
+It's the end! This is where the final `damageAmount5` will be dealt to the enemy. The enemy's defense will reduce the damage done by `1` per point (here's the code for that real quick: `int actualDamage = Math.Max(1, damage - (int)resilience);`), and that's the end of our story.
+
+
+
+
+
+
 
 
 
