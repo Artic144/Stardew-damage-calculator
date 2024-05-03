@@ -34,13 +34,13 @@ I want to compile everything about how the game calculates damage in one place h
 
 The data for weapons and their base stats like level, min and max damage, crit rate / multiplier, etc. is stored in a file called `Weapons.xnb` [[wiki]](https://stardewvalleywiki.com/Modding:Items#Weapons). This data is loaded by functions like `‎StardewValley::Tools::MeleeWeapon.RecalculateAppliedForges`, which will then apply bonuses to these base stats. 
 
-Something else to note is that weapon tooltips are not always an accurate or understandable reflection of a weapon's actual stats. For example: "Critical Hit Damage" is kind of fake. Each weapon has a value that I'll call "Critical Multiplier", and most weapons have this value set to 3. If this value is larger than 3, the game will give the weapon the "Crit Power" stat, with a bonus based on the formula:
+Something else to note is that weapon tooltips are not always an accurate or understandable reflection of a weapon's actual stats. For example: `Crit. Power` is kind of fake. Each weapon has a value that I'll call `Crit. Multiplier`, and most weapons have this value set to `3`. If it's larger than that, the game will give the weapon the Crit. Power stat, with a bonus based on the formula:
 
 `Crit. Mult. = 3 + (Crit. Power / 50)`  |  `Crit. Power = (Crit. Mult. - 3) * 50`
 
-A good example is the Iridium Needle dagger, which has an incredible +200 Crit. Power. In the game data the Iridium Needle has a base Crit. Multiplier of 7, which when we plug into the formula we see gets us exactly that +200 Crit. Power on the tooltip. The game handles most calculations regarding the extra damage dealt by crits with the Crit Multiplier stat, so it's useful to understand how it works.
+A good example is the Iridium Needle dagger, which has an incredible +200 Crit. Power. In the game data the Iridium Needle has a base Crit. Multiplier of 7, which when we plug into the formula we see gets us exactly that +200 Crit. Power on the tooltip. The game handles most calculations regarding the extra damage dealt by crits with the Crit. Multiplier stat, so it's useful to understand how it works.
 
-In general, the game handles all weapon stats, boosts, etc. behind the scenes and then creates the tooltips afterwards. Speed and Critical Chance (both discussed below) also have weird tooltip calculations that can be confusing, but stats like Defense and Knockback should always be accurate to the tooltip (see `StardewValley::Tools::MeleeWeapon.drawTooltip` for specifics).
+In general, the game handles all weapon stats, boosts, etc. behind the scenes and then creates the tooltips afterwards. Speed and Crit. Chance (both discussed below) also have weird tooltip calculations that can be confusing, but stats like Defense and Knockback should always be accurate to the tooltip (see `StardewValley::Tools::MeleeWeapon.drawTooltip` for specifics).
 
 So in summary, weapons have their base stats stored in `Weapons.xnb`, which the game then loads to calculate things like forged mineral buffs. The tooltips you see on a weapon are *not* directly affecting it, but are a reflection of the stats it already has.
 
@@ -62,7 +62,7 @@ if (weapon != null)
 }
 ```
 
-The last 2 lines are the important part here: because the damage a weapon does has to be an integer, a lot of rounding happens in the calculations. This means that even though the Ruby forge *should* increase a weapon's base damage by 10%, sometimes it's a little less because of this rounding. 
+The last 2 lines are the important part here: Stardew damage works only with whole numbers, or integers. Because the damage a weapon does has to be an integer, a lot of rounding happens in the calculations. This means that even though the Ruby forge *should* increase a weapon's base damage by 10%, sometimes it's a little less because of this rounding. 
 
 Whenever a number is cast to an integer using `(int)` it drops all the decimals and does no rounding, so even `(int)3.999999 = 3`. The `Math.Max` function usually doesn't affect the result of ruby forges because by the time you've unlocked the forge, you have a pretty strong weapon where 10% of it's minimum damage is at least 1 anyway.  If you forge something like your starter sword with rubies however, this `Math.Max` will ensure that you at least get 1 bonus damage added per ruby. 
 ___
@@ -102,7 +102,7 @@ if (weapon != null)
   weapon.addedDefense.Value += GetLevel();
 }
 ```
-Each topaz adds 1 defense level to its weapon. Each defense level makes you take 1 less damage from attacks, down to a minimum of 1 damage. Topaz do not affect the damage done by you or your weapon.
+Each topaz adds 1 defense level to its weapon. Each defense level makes you take 1 less damage from attacks, down to a minimum of 1 damage. Topaz do not affect the damage done by a weapon.
 
 ___
 - Emerald - `StardewValley::EmeraldEnchantment`
@@ -144,7 +144,7 @@ if (weapon != null)
   weapon.knockback.Value += GetLevel();
 }
 ```
-Each amethyst adds 1 to the level of a weapon's knockback per forge. This translates to +10 weight on a weapon's tooltip. See [the wiki](https://stardewvalleywiki.com/Weight) for more info.
+Each amethyst adds 1 to the level of a weapon's knockback per forge. This translates to +10 weight on a weapon's tooltip. See [the wiki](https://stardewvalleywiki.com/Weight) for more info. Weight does not directly affect the damage done by a weapon.
 ___
 That was a lot, so to recap:
 
@@ -194,7 +194,7 @@ location.damageMonster(areaOfEffect,
                       (int)type != 1 || !isOnSpecial, lastUser
                       )
 ```
-The general idea is that each of the stats we care about like Min/Max Damage and Crit. Chance / Multplier are being increased by their respective `"Modifier"` variable. These modifiers refer to the player's equipped ring bonuses. Each specific ring's effects can be seen in the `StardewValley::Objects::Ring` file, but I will summarize here: 
+The general idea is that each of the stats we care about like Min/Max Damage and Crit. Chance / Multplier are being increased by their respective `Modifier` variable. These modifiers refer to the player's equipped ring bonuses. Each specific ring's effects can be seen in the `StardewValley::Objects::Ring` file, but I will summarize here: 
 
 - For each Ruby / Iridium Ring: `attackIncreaseModifier += 0.1`
 - For each Aquamarine Ring: `critChanceModifier += 0.1`
@@ -276,11 +276,11 @@ if (who != null && crit && who.professions.Contains(29))
   damageAmount5 = (int)((float)damageAmount5 * 2f);
 }
 ```
-Nearly there now, here the game is checking for the three damage increasing professions. The first `if` block checks for the `Fighter` profession and multiplies the player's damage by `1.1`. It also rounds the number up, meaning you will do at least one more damage per hit. 
+Nearly there now, here the game is checking for the three damage increasing professions. The first `if` block checks for the `Fighter` profession and multiplies the player's damage by 1.1. It also rounds the number up, meaning you will do at least one more damage per hit. 
 
-The next `if` block checks for the `Brute` profession and is very similar to the last check. This time it multiplies damage by `1.15`, rounding up again. If you have both `Fighter` and `Brute` selected you can expect to do about `1.265` times the damage you would do without them, and in practice even a little more because of the rounding up. 
+The next `if` block checks for the `Brute` profession and is very similar to the last check. This time it multiplies damage by 1.15, rounding up again. If you have both Fighter and Brute selected you can expect to do about 1.265 times the damage you would do without them, and in practice even a little more because of the rounding up. 
 
-The final `if` block checks for the `Desperado` profession, and multiplies the damage by `2` if the current hit is a critical strike. 
+The final `if` block checks for the `Desperado` profession, and multiplies the damage by 2 if the current hit is a critical strike. 
 
 ## Enchantments
 ``` c#
@@ -292,7 +292,7 @@ foreach (BaseEnchantment enchantment in who.enchantments)
 
 The last thing to do is to apply weapon enchantments (not innate enchantments, save for maybe Slime Slayer) to `damageAmount5`, if applicable. The two weapon enchantments with this property are:
 
-- Crusader - `StardewValley::CrusaderEnchantment` - Multiplies damage by `1.5` against undead and void enemies.
+- Crusader - `StardewValley::CrusaderEnchantment` - Multiplies damage by 1.5 against undead and void enemies.
 ```c#
 protected override void _OnDealDamage(Monster monster, GameLocation location, Farmer who, ref int amount)
 {
@@ -303,7 +303,7 @@ protected override void _OnDealDamage(Monster monster, GameLocation location, Fa
 }
 ```
 
-- Bug Killer - `StardewValley::BugKillerEnchantment` - Multiplies damage by `2` against bug enemies.
+- Bug Killer - `StardewValley::BugKillerEnchantment` - Multiplies damage by 2 against bug enemies.
 ```c#
 protected override void _OnDealDamage(Monster monster, GameLocation location, Farmer who, ref int amount)
 {
@@ -319,7 +319,7 @@ protected override void _OnDealDamage(Monster monster, GameLocation location, Fa
 ```#c
 damageAmount5 = monster.takeDamage(damageAmount5, (int)trajectory.X, (int)trajectory.Y, isBomb, (double)addedPrecision / 10.0, who);
 ```
-It's the end! This is where the final `damageAmount5` will be dealt to the enemy. The enemy's defense will reduce the damage done by `1` per point (here's the code for that real quick: `int actualDamage = Math.Max(1, damage - (int)resilience);`), and that's the end of our story.
+It's the end! This is where the final `damageAmount5` will be dealt to the enemy. The enemy's defense will reduce the damage done by 1 per point (here's the code for that real quick: `int actualDamage = Math.Max(1, damage - (int)resilience);`), and that's the end of our story.
 
 
 
