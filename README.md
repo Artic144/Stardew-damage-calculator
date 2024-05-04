@@ -6,7 +6,7 @@ Welcome, I've written up a tool to calculate hit damage and optimize builds in S
 ## Overview / Description
 While researching for this project I could only find a few sources for how damage was actually calculated, mostly [Penguinpanda's Video](https://www.youtube.com/watch?v=_CGaLn6Etvc), [CytheNulle's Video](https://www.youtube.com/watch?v=upUQwXrW_kI) and [the community wiki](https://stardewvalleywiki.com).
 
-I've taken a look through the [decompiled Stardew Valley code](https://github.com/veywrn/StardewValley/tree/master) and recreated the damage calculations so that I could figure out what combination of weapon forges, rings, professions, etc. lets you hit the biggest numbers. In this calculator I am focused on the damage that a weapon does per hit, which means I do not take weapon speed into account or try to calculate damage per second. Currently I assume the defense of enemies to be 0, but I hope to update this assumption eventually.
+I've taken a look through the [decompiled Stardew Valley code](https://github.com/veywrn/StardewValley/tree/master) and recreated the damage calculations so that I could figure out what combination of weapon forges, rings, professions, etc. lets you hit the biggest numbers. In this calculator I am focused on the damage that a weapon does per hit, which means I do not take weapon speed into account or try to calculate damage per second. Currently I assume the defense of enemies to be 0, as well as the bonus attack and luck of the player that one might get from eating food. I hope to update these assumptions eventually.
 
 Using the calculator I am able to generate stats for a weapon's average hit damage, critical strike chance, minimum and maximum damage for crits and non-crits, and more. These damage numbers are based off of the player's rings, weapon, forges, etc. which can be searched and filtered through in the provided spreadsheets, or created custom to fit any build in the customizable calculator above.
 
@@ -27,7 +27,7 @@ Important to note, the decompiled code is *not* of the newest, `1.6.x` updates o
 - [Enchantments](#enchantments)
 - [Finished](#finished)
 #### [Methods](#methods)
-#### [Discussion](#discussion)
+#### [Meta Discussion](#meta-discussion)
 #### [Closing Thoughts](#closing-thoughts)
 
 ## User Guide
@@ -348,15 +348,32 @@ It's the end! This is where the final `damageAmount5` will be dealt to the enemy
 
 # Methods
 
-In this section I hope to give a deeper dive into how I programmed the calculator for those interested. All calculator code is written in `Python`, and I make use of the `numpy` and `pandas` packages.
+In this section I hope to give a deeper dive into how I programmed the calculator for those interested. All calculator code is written in `Python`, viewable in the `sdv dps.py` file.
 
-# Discussion
+One of the first things my calculator does is generate all possible combinations of inputs given some initial constraints. For example, the way my program creates the list of all possible ring combinations begins with a list:
 
+`valid_rings = ["Iridium","Aquamarine","Jade","Ruby","Lucky","Warrior","Other"]`.
 
+The program then creates all possible ways to combine two rings from this list 
 
+# Meta Discussion
+
+Even from just looking at the spreadsheets for a few seconds, it's very clear that the basic way to create a high damage build with practically any weapon is to forge it with Aquamarines for the generous bonus crit. chance they offer and spec. into Scout and Desperado to take advantage of the critical strikes even more. If possible, get the best Crit. Power innate enchant on your weapon as it adds a very sizable amount of Crit. Power and overall damage, especially compared to the Crit. Chance enchant. For rings it's best to stack on as many damage boosting Iridium and Ruby Rings as you can, that way the critical strikes have a higher base damage to multiply and increase. I intentionally omitted Warrior Rings from the spreadsheets however, from my testing one is just as good if not a little bit better than a Ruby or Iridium Ring *if* you can keep the buff up 100% of the time. In my opinion this is only possible in places like the dangerous mines or with monster musk, which makes it somewhat situational and probably not worth using.
+
+That critical focused build is only applicable in the later stages of the game, after forging has been unlocked. What kinds of builds are best before this point? By filtering the spreadsheets to only show three `Other` forges, we can find the answer! It seems that for most weapons, the optimal mid-game build is wholly focused on boosting weapon damage and attack with Fighter, Brute, and Ruby/Iridium Rings.
+
+For fun, I'll take a look at the Steel Smallsword with only 2 rings, no forges or innate enchantments or anything fancy. Again it seems like getting as much attack boosting gear as possible with Fighter is the way to go, but there is a little more diversity with ring selection this time around. Some decently optimal ring combos here are any combination of Ruby/Iridium , Jade and Aquamarine. The reason it's a little different this time is because Ruby and Iridium Rings affect damage less the lower a weapon's base attack is. This means that critical focused rings catch up in average damage increase and rival the attack boosting rings! The reason Fighter is better than Scout this early on is that it *guarentees* at least +1 bonus damage, which is huge with weapon damages this low.
+
+In short, the way to make your combat training and progression as smooth as possible goes like this: 
+- Equip any damage boosting rings as soon as you get them.
+- Take Fighter at level 5 combat.
+- Try to get to Ruby/Iridium Rings as soon as you get a decent base weapon like the Obsidian Edge.
+- Take Brute at level 10 combat.
+- Pivot to Scout + Desperado with Aquamarine forged weapon and 2 combined Iridium/Ruby Rings.
 
 # Closing Thoughts
 
+Realistically, there's no point or need to min-max damage this hard in a cute farming sim. *But* it was a lot of fun, and hopefully you learned something along the way. My hope is that no one will come away from seeing the calculator and feeling like they have to use the highest damage build. Enemies at the endgame have around 400 Health at the very most, and lots of the top builds in the spreadsheets double that on a crit. The best builds in the game are comically overkill for the enemies, and I hope that fact inspires you to get creative and try to cook up a fun and unique build the next time you play. This tool started as a way for me to check the stats for my own special build where I combine a Burglar and Hot Java ring together for lots of coffee drops. 
 
-
+Sincerely, thank you for reading! Happy farming :)
 
