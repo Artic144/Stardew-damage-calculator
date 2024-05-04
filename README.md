@@ -27,7 +27,7 @@ Important to note, the decompiled code is *not* of the newest, `1.6.x` updates o
 - [Enchantments](#enchantments)
 - [Finished](#finished)
 #### [Methods](#methods)
-#### [Meta Discussion](#meta-discussion)
+#### [Meta Discussion](#meta-discussion-1)
 #### [Closing Thoughts](#closing-thoughts)
 
 ## User Guide
