@@ -1,6 +1,6 @@
 # Stardew Damage Calculator
 Welcome, I've written up a tool to calculate hit damage and optimize builds in Stardew Valley. If you'd like to jump straight into the data, check out any of the links below!
-- [Google Drive Folder](link) // A Google Drive folder of all damage data for many popular weapons.
+- [Google Drive Folder](https://drive.google.com/drive/folders/1ScqYYKtp3xlBXglB-zdL1vPJCRdSRu9N?usp=sharing) // A Google Drive folder of all damage data for many popular weapons.
 - [Custom Stats Calculator](link) // A Google Colab with the calculator so that you can add/change/customize anything you want (tutorial below).
 
 ## Overview / Description
@@ -25,9 +25,29 @@ Important to note, the decompiled code is *not* of the newest, `1.6.x` updates o
 - [Enchantments](#enchantments)
 - [Finished](#finished)
 #### [Methods](#methods)
+#### [Discussion](#discussion)
+#### [Closing Thoughts](#closing-thoughts)
 
 ## User Guide
 ### Browsing Google Sheets
+
+I hope to have made these spreadheets as user-friendly as possible, but here's a quick explanation of what's in them and how I have been using them. I ran `sdv dps lite.py` on 19 different weapons including Infinity, Dragontooth, Dwarf, and Galaxy weapon families. I also included weapons the player finds in standard mine reward chests like the Obsidian Edge and Crystal Dagger for fun. The weapons are sorted into spreadsheets by type (Dagger, Sword, Club), except for the Infinity and Galaxy families. This is because they cannot have Innate Enchantments and I wanted to keep the format the same across each sheet. Every sheet is sorted by High to Low Avg. Hit Damage by default.
+
+These are all the possible starting inputs I used to generate the spreadsheets, with some notes on what I chose to include / omit:
+- __Rings__: `["Iridium","Aquamarine","Jade","Ruby","Lucky","Other"]`
+  - Any game-allowed combination of these rings, assuming the player has combined rings and both ring slots available can be inputs.
+  - Warrior Ring was not included as I feel you cannot expect 100% uptime on the buff unless in a very enemy dense environment. An option to enable the Warrior Ring is available in the customizable calculator.
+- __Forges__: `["Aquamarine","Jade","Ruby","Other"]`
+  - Any combination of these 4 forges is valid.
+  - I chose not to include Emerald / Speed forges because I calculate hit damage, not damage per second. There is a section in the algorithm breakdown that discussed speed forges for those interested.
+- __Weapon Enchantments__: `[None]`
+  - I assume that the weapon does not have a damage boosting enchant like Crusader. These Weapon Enchants *are* available in the customizable calculator.
+- __Innate Enchantments__: `["Crit Power",3],["Crit Chance",3],["Attack",5],["Other",0]`
+  - Any of these 4 enchantments can be inputs. They are assumed to be at their maximum level. Changing an Innate Enchant's input level is possible in the customizable calculator.
+- __Professions__: `["Fighter"],["Fighter","Brute"],["Scout"],["Scout","Desperado"]`
+  - Any of these 4 profession paths can be inputs. Level 10 professions that are not Brute or Desperado do not increase damage so for players with Scout and Acrobat for example, the `["Scout"]` input would accurately calculate their damage.
+
+Please refer to the customizable calculator for additrional options if the premade spreadsheets feel limited.
 
 ### Using Google Colab
 
