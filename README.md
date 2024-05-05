@@ -6,7 +6,7 @@ Welcome, I've written up a tool to calculate hit damage and optimize builds in S
 ## Overview / Description
 While researching for this project I could only find a few sources for how damage was actually calculated, mostly [Penguinpanda's Video](https://www.youtube.com/watch?v=_CGaLn6Etvc), [CytheNulle's Video](https://www.youtube.com/watch?v=upUQwXrW_kI) and [the community wiki](https://stardewvalleywiki.com).
 
-I've taken a look through the [decompiled Stardew Valley code](https://github.com/veywrn/StardewValley/tree/master) and recreated the damage calculations so that I could figure out what combination of weapon forges, rings, professions, etc. lets you hit the biggest numbers. In this calculator I am focused on the damage that a weapon does per hit, which means I do not take weapon speed into account or try to calculate damage per second. Currently I assume the defense of enemies to be 0, as well as the bonus attack and luck of the player that one might get from eating food. I hope to update these assumptions eventually.
+I've taken a look through the [decompiled Stardew Valley code](https://github.com/veywrn/StardewValley/tree/master) and recreated the damage calculations so that I could figure out what combination of weapon forges, rings, professions, etc. lets you hit the biggest numbers. In this calculator I am focused on the damage that a weapon does per hit, which means I do not take weapon speed into account or try to calculate damage per second. In the spreadsheets I assume the target's defense to be 0, as well as any bonus attack and luck the player might get from eating food. These assumptions are all able to be changed in the customizable calculator.
 
 Using the calculator I am able to generate stats for a weapon's average hit damage, critical strike chance, minimum and maximum damage for crits and non-crits, and more. These damage numbers are based off of the player's rings, weapon, forges, etc. which can be searched and filtered through in the provided spreadsheets, or created custom to fit any build in the customizable calculator above.
 
@@ -44,16 +44,20 @@ These are all the possible starting inputs I used to generate the spreadsheets, 
 - __Forges__: `["Aquamarine","Jade","Ruby","Other"]`
   - Any combination of these 4 forges is valid.
   - I chose not to include Emerald / Speed forges because I calculate hit damage, not damage per second. There is a section in the algorithm breakdown that discussed speed forges for those interested.
-- __Weapon Enchantments__: `[None]`
+- __Weapon Enchantments__: `[]`
   - I assume that the weapon does not have a damage boosting enchant like Crusader. These Weapon Enchants *are* available in the customizable calculator.
 - __Innate Enchantments__: `["Crit Power",3],["Crit Chance",3],["Attack",5],["Other",0]`
   - Any of these 4 enchantments can be inputs. They are assumed to be at their maximum level. Changing an Innate Enchant's input level is possible in the customizable calculator.
 - __Professions__: `["Fighter"],["Fighter","Brute"],["Scout"],["Scout","Desperado"]`
   - Any of these 4 profession paths can be inputs. Level 10 professions that are not Brute or Desperado do not increase damage so for players with Scout and Acrobat for example, the `["Scout"]` input would accurately calculate their damage.
+- __Other Options__: `extra_luck = 0, extra_atk = 0, enemy_defense = 0`
+  - All extra options are set to 0 when generating the spreadsheets. These are able to be edited in the customizable calculator.
 
 Please refer to the customizable calculator for additrional options if the premade spreadsheets feel limited.
 
 ### Using Google Colab
+
+To avoid losing your changes when working with the calculator, please create a copy by going to `File -> Save a copy in Drive`. The calculator has a bunch of labeled sections with dropdowns to show their corresponding code block. To edit any given section, simply change the code under the `# edit here` comment. Defaults, exmaples and format guides are available in each section for convenience. Once all settings have been changed, run all cells using `Runtime -> Run all`, or `Ctrl + F9`. The custom .csv will be available under the `Files` tab on the left side of the window. These instructions are also at the bottom of the calculator.
 
 ## Stardew Damage Algorithm Breakdown
 I want to compile everything about how the game calculates damage in one place here. I'll be using the wiki's conventions for talking about methods / functions in game code, E.g. `StardewValley::Tools::MeleeWeapon.DoDamage` which is effectively the filepath so that you can find the class / functions I reference if you like.
