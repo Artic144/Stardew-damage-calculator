@@ -26,7 +26,6 @@ Important to note, the decompiled code is *not* of the newest, `1.6.x` updates o
 - [Professions](#professions)
 - [Enchantments](#enchantments)
 - [Finished](#finished)
-#### [Methods](#methods)
 #### [Meta Discussion](#meta-discussion-1)
 #### [Closing Thoughts](#closing-thoughts)
 
@@ -59,10 +58,10 @@ Please refer to the customizable calculator for additrional options if the prema
 
 To avoid losing your changes when working with the calculator, please create a copy by going to `File -> Save a copy in Drive`. The calculator has a bunch of labeled sections with dropdowns to show their corresponding code block. To edit any given section, simply change the code under the `# edit here` comment. Defaults, exmaples and format guides are available in each section for convenience. Once all settings have been changed, run all cells using `Runtime -> Run all`, or `Ctrl + F9`. The custom .csv will be available under the `Files` tab on the left side of the window. These instructions are also at the bottom of the calculator.
 
-## Stardew Damage Algorithm Breakdown
+# Stardew Damage Algorithm Breakdown
 I want to compile everything about how the game calculates damage in one place here. I'll be using the wiki's conventions for talking about methods / functions in game code, E.g. `StardewValley::Tools::MeleeWeapon.DoDamage` which is effectively the filepath so that you can find the class / functions I reference if you like.
 
-#### Weapon Base Stats / Tooltips
+## Weapon Base Stats / Tooltips
 
 The data for weapons and their base stats like level, min and max damage, crit rate / multiplier, etc. is stored in a file called `Weapons.xnb` [[wiki]](https://stardewvalleywiki.com/Modding:Items#Weapons). This data is loaded by functions like `‎StardewValley::Tools::MeleeWeapon.RecalculateAppliedForges`, which will then apply bonuses to these base stats. 
 
@@ -76,7 +75,7 @@ In general, the game handles all weapon stats, boosts, etc. behind the scenes an
 
 So in summary, weapons have their base stats stored in `Weapons.xnb`, which the game then loads to calculate things like forged mineral buffs. The tooltips you see on a weapon are *not* directly affecting it, but are a reflection of the stats it already has.
 
-#### Forges
+## Forges
 
 Each mineral that can be forged onto a weapon has its own class in the code describing its behavior. Here's a breakdown of how exactly they all affect their weapon: 
 ___
@@ -349,16 +348,6 @@ protected override void _OnDealDamage(Monster monster, GameLocation location, Fa
 damageAmount5 = monster.takeDamage(damageAmount5, (int)trajectory.X, (int)trajectory.Y, isBomb, (double)addedPrecision / 10.0, who);
 ```
 It's the end! This is where the final `damageAmount5` will be dealt to the enemy. The enemy's defense will reduce the damage done by 1 per point (here's the code for that real quick: `int actualDamage = Math.Max(1, damage - (int)resilience);`), and that's the end of our story.
-
-# Methods
-
-In this section I hope to give a deeper dive into how I programmed the calculator for those interested. All calculator code is written in `Python`, viewable in the `sdv dps.py` file.
-
-One of the first things my calculator does is generate all possible combinations of inputs given some initial constraints. For example, the way my program creates the list of all possible ring combinations begins with a list:
-
-`valid_rings = ["Iridium","Aquamarine","Jade","Ruby","Lucky","Warrior","Other"]`.
-
-The program then creates all possible ways to combine two rings from this list 
 
 # Meta Discussion
 
