@@ -365,12 +365,9 @@ In short, the way to make your combat training and progression as smooth as poss
 - Pivot to Scout + Desperado with Aquamarine forged weapon and 2 combined Iridium/Ruby Rings.
 
 Another interesting question to ask is: What type of weapon is the best to use? Each have their own ups and downs:
-- Daggers:
-Daggers have an inherent boost to Crit. Chance, a very fast rate of attack, and a special attack which can output incredible damage. They also have low base damage and a very small hitbox, so you will likely be trading hits with enemies in combat.
-- Swords:
-Swords are very middle of the pack with a decent base damage, decent swing speed, and defensive blocking special attack. They have a very large hitbox that even got buffed slightly in `1.6`.
-- Clubs / Hammers:
-Hammers are slow, heavy, hard-hitting weapons with a very powerful special attack. Their swing hitboxes are similar to swords, and their special attacks are *ONLY* affected by damage boosts from forges.
+- Daggers have an inherent boost to Crit. Chance, a very fast rate of attack, and a special attack which can output incredible damage. They also have low base damage and a very small hitbox, so you will likely be trading hits with enemies in combat.
+- Swords are very middle of the pack with a decent base damage, decent swing speed, and defensive blocking special attack. They have a very large hitbox that even got buffed slightly in `1.6`.
+- Clubs / Hammers are slow, heavy, hard-hitting weapons with a very powerful special attack. Their swing hitboxes are similar to swords, and their special attacks are *ONLY* affected by damage boosts from forges.
 
 In my opinion, all weapon types are plenty viable for progression through the entire game. Hammers are incredible in the early game, especially considering their special attack can be repeatedly triggered during the animation. Swords are a jack-of-all-trades, good at dealing with large quantities of enemies, swinging fast enough to stunlock them into terrain, as well as having defensive capabilities. Daggers have historically been considered lacking but with their crit bonus and being able to lock enemies into their special attack, I believe they are unrivaled at single-target damage output. Unfortunately, there are few combat scenarios where this really makes daggers shine.
 
