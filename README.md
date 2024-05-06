@@ -1,7 +1,7 @@
 # Stardew Damage Calculator
 Welcome, I've written up a tool to calculate hit damage and optimize builds in Stardew Valley. If you'd like to jump straight into the data, check out any of the links below!
 - [Google Drive Folder](https://drive.google.com/drive/folders/1ScqYYKtp3xlBXglB-zdL1vPJCRdSRu9N?usp=sharing) // A Google Drive folder of all damage data for many popular weapons.
-- [Custom Stats Calculator](link) // A Google Colab with the calculator so that you can add/change/customize anything you want (tutorial below).
+- [Custom Stats Calculator](https://colab.research.google.com/drive/1bXk5HagE50bXV4Zv95TRcvtJTRaaKBDP?usp=sharing) // A Google Colab with the calculator so that you can add/change/customize anything you want (tutorial below).
 
 ## Overview / Description
 While researching for this project I could only find a few sources for how damage was actually calculated, mostly [Penguinpanda's Video](https://www.youtube.com/watch?v=_CGaLn6Etvc), [CytheNulle's Video](https://www.youtube.com/watch?v=upUQwXrW_kI) and [the community wiki](https://stardewvalleywiki.com).
