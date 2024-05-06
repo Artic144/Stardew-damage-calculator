@@ -357,6 +357,13 @@ That critical focused build is only applicable in the later stages of the game, 
 
 For fun, I'll take a look at the Steel Smallsword with only 2 rings, no forges or innate enchantments or anything fancy. Again it seems like getting as much attack boosting gear as possible with Fighter is the way to go, but there is a little more diversity with ring selection this time around. Some decently optimal ring combos here are any combination of Ruby/Iridium , Jade and Aquamarine. The reason it's a little different this time is because Ruby and Iridium Rings affect damage less the lower a weapon's base attack is. This means that critical focused rings catch up in average damage increase and rival the attack boosting rings! The reason Fighter is better than Scout this early on is that it *guarentees* at least +1 bonus damage, which is huge with weapon damages this low.
 
+In short, the way to make your combat training and progression as smooth as possible goes like this: 
+- Equip any damage boosting rings as soon as you get them.
+- Take Fighter at level 5 combat.
+- Try to get to Ruby/Iridium Rings as soon as you get a decent base weapon like the Obsidian Edge.
+- Take Brute at level 10 combat.
+- Pivot to Scout + Desperado with Aquamarine forged weapon and 2 combined Iridium/Ruby Rings.
+
 Another interesting question to ask is: What type of weapon is the best to use? Each have their own ups and downs:
 - Daggers:
 Daggers have an inherent boost to Crit. Chance, a very fast rate of attack, and a special attack which can output incredible damage. They also have low base damage and a very small hitbox, so you will likely be trading hits with enemies in combat.
@@ -364,13 +371,6 @@ Daggers have an inherent boost to Crit. Chance, a very fast rate of attack, and 
 Swords are very middle of the pack with a decent base damage, decent swing speed, and defensive blocking special attack. They have a very large hitbox that even got buffed slightly in `1.6`.
 - Clubs / Hammers:
 Hammers are slow, heavy, hard-hitting weapons with a very powerful special attack. Their swing hitboxes are similar to swords, and their special attacks are *ONLY* affected by damage boosts from forges.
-
-In short, the way to make your combat training and progression as smooth as possible goes like this: 
-- Equip any damage boosting rings as soon as you get them.
-- Take Fighter at level 5 combat.
-- Try to get to Ruby/Iridium Rings as soon as you get a decent base weapon like the Obsidian Edge.
-- Take Brute at level 10 combat.
-- Pivot to Scout + Desperado with Aquamarine forged weapon and 2 combined Iridium/Ruby Rings.
 
 In my opinion, all weapon types are plenty viable for progression through the entire game. Hammers are incredible in the early game, especially considering their special attack can be repeatedly triggered during the animation. Swords are a jack-of-all-trades, good at dealing with large quantities of enemies, swinging fast enough to stunlock them into terrain, as well as having defensive capabilities. Daggers have historically been considered lacking but with their crit bonus and being able to lock enemies into their special attack, I believe they are unrivaled at single-target damage output. Unfortunately, there are few combat scenarios where this really makes daggers shine.
 
