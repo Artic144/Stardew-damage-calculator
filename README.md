@@ -10,7 +10,7 @@ I've taken a look through the [decompiled Stardew Valley code](https://github.co
 
 Using the calculator I am able to generate stats for a weapon's average hit damage, critical strike chance, minimum and maximum damage for crits and non-crits, and more. These damage numbers are based off of the player's rings, weapon, forges, etc. which can be searched and filtered through in the provided spreadsheets, or created custom to fit any build in the customizable calculator above.
 
-Important to note, the decompiled code is *not* of the newest, `1.6.x` updates of the game but instead for `1.5.4`. To my knowledge, none of the math or weapon stats are any different than they were in `1.5` so this data should still be relevant now. The only addition in `1.6` that is relevant are innate weapon enchants, for which I am assuming the wiki and CytheNulle's video correctly describe how they are factored into the damage formula.
+Important to note, the decompiled code is *not* of the newest, `1.6.x` updates of the game but instead for `1.5.4`. To my knowledge, none of the current math or weapon stats are any different than they were in `1.5.x` so this data should still be relevant now. The only addition in `1.6` that is relevant are innate weapon enchants, for which I am assuming the wiki and CytheNulle's video correctly describe how they are factored into the damage formula.
 
 ## Table of Contents
 #### [User Guide]()
@@ -34,9 +34,9 @@ Important to note, the decompiled code is *not* of the newest, `1.6.x` updates o
 
 I hope to have made these spreadheets as user-friendly as possible, but here's a quick explanation of what's in them and how I have been using them. I ran `sdv dps lite.py` on 19 different weapons including Infinity, Dragontooth, Dwarf, and Galaxy weapon families. I also included weapons the player finds in standard mine reward chests like the Obsidian Edge and Crystal Dagger for fun. The weapons are sorted into spreadsheets by type (Dagger, Sword, Club), except for the Infinity and Galaxy families. This is because they cannot have Innate Enchantments and I wanted to keep the format the same across each sheet. 
 
-Every sheet is sorted by High to Low Avg. Hit Damage by default. To sort data further, create a filter view in the sheet and select any desired stats. I find helpful things to filter are `Free Rings` to one or two to make room for other non-damage rings and `Professions` to find a build for specific characters.
+Every sheet is sorted by High to Low Avg. Hit Damage by default. To sort data further, create a filter view by selecting `Data -> Create filter view` and clicking on the horizontal green lines by each column name. I find helpful things to filter are `Free Rings` to one or two to make room for other non-damage rings and `Professions` to find a build for specific characters.
 
-These are all the possible starting inputs I used to generate the spreadsheets, with some notes on what I chose to include / omit:
+That's all for the guide so if that's all you came for feel free to start looking around! Otherwise, these are all the possible starting inputs I used to generate the spreadsheets, with some notes on what I chose to include / omit. The calculator basically takes all possible combinations of these inputs and spits out the damage stats for each which is why I want to go over them here; These are all the different rings, forges, etc. you can expect to see represented in the spreadsheets.
 - __Rings__: `["Iridium","Aquamarine","Jade","Ruby","Lucky","Other"]`
   - Any game-allowed combination of these rings, assuming the player has combined rings and both ring slots available can be inputs.
   - Warrior Ring was not included as I feel you cannot expect 100% uptime on the buff unless in a very enemy dense environment. An option to enable the Warrior Ring is available in the customizable calculator.
@@ -56,16 +56,17 @@ Please refer to the customizable calculator for additrional options if the prema
 
 ### Using Google Colab
 
-To avoid losing your changes when working with the calculator, please create a copy by going to `File -> Save a copy in Drive`. The calculator has a bunch of labeled sections with dropdowns to show their corresponding code block. To edit any given section, simply change the code under the `# edit here` comment. Defaults, exmaples and format guides are available in each section for convenience. Once all settings have been changed, run all cells using `Runtime -> Run all`, or `Ctrl + F9`. The custom .csv will be available under the `Files` tab on the left side of the window. These instructions are also at the bottom of the calculator.
+To avoid losing your changes when working with the calculator, please create a copy by going to `File -> Save a copy in Drive`. The calculator has a bunch of labeled sections with dropdowns to show their corresponding code block. To edit any given section, simply change the code under the `# edit here` comment. Defaults, examples and format guides are available in each section for convenience. 
+Once all settings have been changed, run all cells using `Runtime -> Run all`, or `Ctrl + F9`. The custom .csv will be available under the `Files` tab on the left side of the window. These instructions are also in the calculator.
 
 # Stardew Damage Algorithm Breakdown
 I want to compile everything about how the game calculates damage in one place here. I'll be using the wiki's conventions for talking about methods / functions in game code, E.g. `StardewValley::Tools::MeleeWeapon.DoDamage` which is effectively the filepath so that you can find the class / functions I reference if you like.
 
 ## Weapon Base Stats / Tooltips
 
-The data for weapons and their base stats like level, min and max damage, crit rate / multiplier, etc. is stored in a file called `Weapons.xnb` [[wiki]](https://stardewvalleywiki.com/Modding:Items#Weapons). This data is loaded by functions like `‎StardewValley::Tools::MeleeWeapon.RecalculateAppliedForges`, which will then apply bonuses to these base stats. 
+The data for weapons and their base stats like Min and Max Damage, Crit. Rate / Multiplier, etc. is stored in a file called `Weapons.xnb` [[wiki]](https://stardewvalleywiki.com/Modding:Items#Weapons). This data is loaded by functions like `‎StardewValley::Tools::MeleeWeapon.RecalculateAppliedForges`, which will then apply bonuses to these base stats. 
 
-Something else to note is that weapon tooltips are not always an accurate or understandable reflection of a weapon's actual stats. For example: `Crit. Power` is kind of fake. Each weapon has a value that I'll call `Crit. Multiplier`, and most weapons have this value set to `3`. If it's larger than that, the game will give the weapon the Crit. Power stat, with a bonus based on the formula:
+Something else to note is that weapon tooltips are not always an accurate or understandable reflection of a weapon's actual stats. For example: the `Crit. Power` tooltip is kind of fake. Each weapon has a value that I'll call `Crit. Multiplier`, and most weapons have this value set to `3`. If it's larger than that, the game will give the weapon a Crit. Power bonus on the tooltip, with the bonus based on the formulas:
 
 `Crit. Mult. = 3 + (Crit. Power / 50)`  |  `Crit. Power = (Crit. Mult. - 3) * 50`
 
@@ -119,7 +120,7 @@ if (weapon != null)
 }
 ```
 
-Aquamarines increase their weapon's *base* Crit. Chance addatively by 4.6%. Most weapons have a base crit chance of 2%, so even one forge is a substantial increase to a weapon's Crit. Chance. 
+Aquamarines increase their weapon's *base* Crit. Chance addatively by +4.6%. Most weapons have a base crit chance of 2%, so even one forge is a substantial increase to a weapon's Crit. Chance. 
 
 The tooltip for Crit. Chance on a weapon is *roughly* +1 tooltip Crit. Chance for each 1% base Crit. Chance above 2%. This is a rough estimation because of the game rounding numbers and daggers having a slightly buffed Crit. Chance in the game code (see `StardewValley::Tools::MeleeWeapon.drawTooltip`).
 
@@ -134,7 +135,6 @@ if (weapon != null)
 }
 ```
 Each topaz adds 1 defense level to its weapon. Each defense level makes you take 1 less damage from attacks, down to a minimum of 1 damage. Topaz do not affect the damage done by a weapon.
-
 ___
 - Emerald - `StardewValley::EmeraldEnchantment`
 ```c#
@@ -164,7 +164,7 @@ This assumes that our base weapon has an even base speed, which is rarely not th
 
 `3 emeralds = +18 true speed = +9 tooltip speed`.
 
-These daggers already have a total attack time so low that it's impractical and probably wasteful to apply emeralds to them, but a fun thought experiment nonetheless. For more information on weapon speed see `StardewValley::Tools::MeleeWeapon` and [the wiki](https://stardewvalleywiki.com/Speed). For the purposes of this damage calculator I do not consider speed as I am currently interested in the raw damage per hit of a weapon, not the damage per second output. 
+These daggers already have a total attack time so low that it's impractical and probably wasteful to apply emeralds to them, but a fun thought experiment nonetheless. For more information on weapon speed see `StardewValley::Tools::MeleeWeapon` and [the wiki](https://stardewvalleywiki.com/Speed).
 ___
 - Amethyst - `StardewValley::AmethystEnchantment`
 ```c#
@@ -231,7 +231,7 @@ The general idea is that each of the stats we care about like Min/Max Damage and
 - For each Aquamarine Ring: `critChanceModifier += 0.1`
 - For each Jade Ring: `critPowerModifier += 0.1`
 
-As an example, if you have two combined Iridium + Ruby Rings equipped, your total  `attackIncreaseModifier = 0.4`. This means that `newMinDamage = (int)minDamage * (1 + 0.4)`, So your rings are giving you 40% more damage. The actual damage you do might be a little lower because of the integer typecasting at the very end. With respect to Crit. Chance and Crit. Multipliers, these values are stored as floats and so we don't have to worry about any rounding happening with those two. As for the rest of the variables, They do not directly affect the damage calculations so we can ignore them.
+As an example, if you have two combined Iridium + Ruby Rings equipped, your total  `attackIncreaseModifier = 0.4`. This means that `newMinDamage = (int)(minDamage * (1 + 0.4))`, So your rings are giving you 40% more damage. The actual damage you do might be a little lower because of the integer typecasting at the very end. With respect to Crit. Chance and Crit. Multipliers, these values are stored as floats and so we don't have to worry about any rounding happening with those two. As for the rest of the variables, They do not directly affect the damage calculations so we can ignore them.
 
 ## Innate Enchantments
 
@@ -276,17 +276,17 @@ if (who != null && Game1.random.NextDouble() < (double)(critChance + (float)who.
 }
 damageAmount5 = (crit ? ((int)((float)damageAmount5 * critMultiplier)) : damageAmount5);
 ```
-Next up, the game rolls a damage value between the Minimum and Maximum Damage, and denotes it as `damageAmount5`. This will end up being the final value that we can use as the actual number you hit in game after a few more bits of code. After the damage is rolled, the game checks whether or not the hit was a Critical Strike. It factors the player's luck into the final Critical Strike Chance using this formula:
+Next up, the game rolls a damage value between the Minimum and Maximum Damage, and denotes it as `damageAmount5`. This will end up being the final value that the player hits in-game after a few more bits of code. After the damage is rolled, the game checks whether or not the hit was a Critical Strike. It factors the player's luck into the final Critical Strike Chance using this formula:
 
 `finalCritChance = critChance * (1 + LuckLevel/40)`.
 
-This formula multiplicatively increases the player's Crit. Chance by 2.5% per point of luck. Daily luck does not factor into `LuckLevel`, and only increases such a Lucky Rings or Luck buffs from food will matter here. After the Critical Strike roll is done the `damageAmount5` is multiplied by `critMultiplier` if the Crit. roll succeeded, otherwise it stays the same if it failed. 
+This formula multiplicatively increases the player's Crit. Chance by +2.5% per point of luck. Daily luck does not factor into `LuckLevel`, and only increases such as Lucky Rings or Luck buffs from food will matter here. After the Critical Strike roll is done the `damageAmount5` is multiplied by `critMultiplier` if the Crit. roll succeeded, otherwise it stays the same if it failed. 
 
 ## Attack Boosts
 ```c#
 damageAmount5 = Math.Max(1, damageAmount5 + ((who != null) ? (who.attack * 3) : 0));
 ```
-This sneaky line of code increases the damage of the player's attack by `3 * attack`. Things that can influence the player's attack include the Warrior Ring buff, other buffs from eating food, as well as the Attack Innate Enchantment.  The fact that this line of code comes right after the critical strike section can create some very strange damage outputs, well showcased in Penguinpanda's video.
+This line of code increases the damage of the player's attack by `3 * attack`. Things that can influence the player's attack include the Warrior Ring buff, other buffs from eating food, as well as the Attack Innate Enchantment.  The fact that this line of code comes right after the critical strike section can create some very strange damage outputs, well showcased in Penguinpanda's video.
 
 ## Professions
 
@@ -304,7 +304,7 @@ if (who != null && crit && who.professions.Contains(29))
   damageAmount5 = (int)((float)damageAmount5 * 2f);
 }
 ```
-Nearly there now, here the game is checking for the three damage increasing professions. The first `if` block checks for the `Fighter` profession and multiplies the player's damage by 1.1. It also rounds the number up, meaning you will do at least one more damage per hit. 
+Nearly there now, here the game is checking for the three damage increasing professions. The first `if` block checks for the `Fighter` profession and multiplies the player's damage by 1.1. It also rounds the number up, meaning you will do at least one more damage per hit with the profession selected. 
 
 The next `if` block checks for the `Brute` profession and is very similar to the last check. This time it multiplies damage by 1.15, rounding up again. If you have both Fighter and Brute selected you can expect to do about 1.265 times the damage you would do without them, and in practice even a little more because of the rounding up. 
 
@@ -357,12 +357,24 @@ That critical focused build is only applicable in the later stages of the game, 
 
 For fun, I'll take a look at the Steel Smallsword with only 2 rings, no forges or innate enchantments or anything fancy. Again it seems like getting as much attack boosting gear as possible with Fighter is the way to go, but there is a little more diversity with ring selection this time around. Some decently optimal ring combos here are any combination of Ruby/Iridium , Jade and Aquamarine. The reason it's a little different this time is because Ruby and Iridium Rings affect damage less the lower a weapon's base attack is. This means that critical focused rings catch up in average damage increase and rival the attack boosting rings! The reason Fighter is better than Scout this early on is that it *guarentees* at least +1 bonus damage, which is huge with weapon damages this low.
 
+Another interesting question to ask is: What type of weapon is the best to use? Each have their own ups and downs:
+- Daggers:
+Daggers have an inherent boost to Crit. Chance, a very fast rate of attack, and a special attack which can output incredible damage. They also have low base damage and a very small hitbox, so you will likely be trading hits with enemies in combat.
+- Swords:
+Swords are very middle of the pack with a decent base damage, decent swing speed, and defensive blocking special attack. They have a very large hitbox that even got buffed slightly in `1.6`.
+- Clubs / Hammers:
+Hammers are slow, heavy, hard-hitting weapons with a very powerful special attack. Their swing hitboxes are similar to swords, and their special attacks are *ONLY* affected by damage boosts from forges.
+
 In short, the way to make your combat training and progression as smooth as possible goes like this: 
 - Equip any damage boosting rings as soon as you get them.
 - Take Fighter at level 5 combat.
 - Try to get to Ruby/Iridium Rings as soon as you get a decent base weapon like the Obsidian Edge.
 - Take Brute at level 10 combat.
 - Pivot to Scout + Desperado with Aquamarine forged weapon and 2 combined Iridium/Ruby Rings.
+
+In my opinion, all weapon types are plenty viable for progression through the entire game. Hammers are incredible in the early game, especially considering their special attack can be repeatedly triggered during the animation. Swords are a jack-of-all-trades, good at dealing with large quantities of enemies, swinging fast enough to stunlock them into terrain, as well as having defensive capabilities. Daggers have historically been considered lacking but with their crit bonus and being able to lock enemies into their special attack, I believe they are unrivaled at single-target damage output. Unfortunately, there are few combat scenarios where this really makes daggers shine.
+
+At the end of the day, the diversity in weapon choices just lets people choose a combat style that suits them and their build preferences. All weapons when paired with the right build will tear through even the end game combat challenges, so pick whatever feels best and have fun!
 
 # Closing Thoughts
 
