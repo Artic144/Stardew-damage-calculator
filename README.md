@@ -4,6 +4,8 @@ Welcome, I wrote a tool to calculate hit damage and optimize builds in Stardew V
 - [Custom Stats Calculator](https://colab.research.google.com/drive/1bXk5HagE50bXV4Zv95TRcvtJTRaaKBDP?usp=sharing) // A Google Colab with the calculator so that you can add/change/customize anything you want (tutorial below).
 
 ## Overview / Description
+Thank you to my wife for editing. ❤️
+
 While researching for this project I could only find a few sources for how damage was actually calculated, mostly [Penguinpanda's Video](https://www.youtube.com/watch?v=_CGaLn6Etvc), [CytheNulle's Video](https://www.youtube.com/watch?v=upUQwXrW_kI) and [the community wiki](https://stardewvalleywiki.com).
 
 I looked through the [decompiled Stardew Valley code](https://github.com/veywrn/StardewValley/tree/master) and recreated the damage calculations to figure out what combination of weapon forges, rings, professions, etc. lets you hit the biggest numbers. In this calculator I focus on the raw damage that a weapon does per hit, which means not taking weapon speed into account or trying to calculate damage per second. In the spreadsheets I assume the target's defense to be 0, as well as any bonus attack and luck the player might get from eating food. These assumptions are all able to be changed in the customizable calculator.
