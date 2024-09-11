@@ -217,7 +217,7 @@ For example, a dagger with 2% base Crit. Chance has 2.8% after the boost. This b
 
 Only a few of the game's rings will affect a weapon's damage, some of the most important being the Iridium Ring / Ruby Ring, Aquamarine Ring, Jade Ring, and Lucky Ring. With the exception of the Lucky Ring, all other mentioned rings provide a 10% boost to their respective stat. Rings stack additively with each other, meaning wearing 2 Ruby Rings provide a 20% boost to attack.
 
-So far we've spent practically all our time in the `StardewValley::Tools::MeleeWeapon` file, and this will be the last section where this is true. In the function `StardewValley::Tools::MeleeWeapon.DoDamage`, the function `StardewValley::GameLoction::damageMonster` is called, and is passed these parameters: 
+So far we've spent practically all our time in the `StardewValley::Tools::MeleeWeapon` file, and this will be the last section where this is true. In the function `StardewValley::Tools::MeleeWeapon.DoDamage`, the function `StardewValley::GameLocation::damageMonster` is called, and is passed these parameters: 
 ```c#
 location.damageMonster(areaOfEffect,
                       (int)((float)(int)minDamage * (1f + who.attackIncreaseModifier)),
