@@ -4,7 +4,7 @@ Welcome, I wrote a tool to calculate hit damage and optimize builds in Stardew V
 - [Custom Stats Calculator](https://colab.research.google.com/drive/1bXk5HagE50bXV4Zv95TRcvtJTRaaKBDP?usp=sharing) // A Google Colab with the calculator so that you can add/change/customize anything you want (tutorial below).
 
 ## Overview / Description
-Thank you to my wife for editing. ❤️
+Thank you to Ada for editing.
 
 While researching for this project I could only find a few sources for how damage was actually calculated, mostly [Penguinpanda's Video](https://www.youtube.com/watch?v=_CGaLn6Etvc), [CytheNulle's Video](https://www.youtube.com/watch?v=upUQwXrW_kI) and [the community wiki](https://stardewvalleywiki.com).
 
